@@ -2,124 +2,599 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>3D Model Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Computer Graphics Presentation - Kara Montoure</title>
     <style>
-        body {
+        /* === BASE STYLES === */
+        * {
             margin: 0;
-            padding: 20px;
-            background: #0a0e1a;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
         }
-        #container {
-            max-width: 1000px;
+        
+        .container {
+            max-width: 1200px;
             margin: 0 auto;
+            background: rgba(10, 14, 26, 0.9);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(0, 255, 204, 0.2);
         }
-        #viewer {
-            width: 800px;
-            height: 600px;
-            border: 3px solid #00ffcc;
-            border-radius: 10px;
-            margin: 20px auto;
-            background: black;
+        
+        /* === HEADER === */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #00ffcc;
         }
+        
         h1 {
+            font-size: 2.5em;
             color: #00ffcc;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 255, 204, 0.3);
+        }
+        
+        .subtitle {
+            color: #aaa;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        /* === SECTIONS === */
+        .section {
+            background: rgba(20, 25, 45, 0.7);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        h2 {
+            color: #00ffcc;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+        }
+        
+        h3 {
+            color: #00ccff;
+            margin: 20px 0 10px 0;
+        }
+        
+        /* === 3D VIEWER === */
+        #viewer {
+            width: 100%;
+            height: 550px;
+            border: 3px solid #00ffcc;
+            border-radius: 15px;
+            background: #000;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        .viewer-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+        
+        .control-btn {
+            background: rgba(0, 255, 204, 0.1);
+            color: white;
+            border: 1px solid #00ffcc;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .control-btn:hover {
+            background: rgba(0, 255, 204, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* === CONTENT BOXES === */
+        .definition-box {
+            background: rgba(0, 40, 60, 0.4);
+            border-left: 4px solid #00ffcc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .purpose-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .purpose-list li {
+            background: rgba(0, 255, 204, 0.05);
+            margin: 10px 0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 3px solid #00ffcc;
+        }
+        
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .tech-card {
+            background: rgba(30, 35, 55, 0.5);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 255, 204, 0.1);
+        }
+        
+        /* === FOOTER === */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            font-size: 0.9em;
+        }
+        
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            #viewer {
+                height: 400px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <h1>🎬 3D Model Presentation</h1>
-        <p>Computer Graphics Assignment | Kara Montoure</p>
-        
-        <div id="viewer">
-            <!-- 3D will appear here -->
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1>🎬 3D Computer Graphics Presentation</h1>
+            <div class="subtitle">Practical Assignment 12 | Blender 3D Modeling Project</div>
+            <div style="color: #00ccff; font-size: 1.1em; margin-top: 10px;">
+                Created by: <strong>Kara Montoure</strong>
+            </div>
+            <div style="color: #aaa; margin-top: 5px;">
+                MacBook Air M4 | Blender 4.0 | GitHub Pages
+            </div>
+        </header>
+
+        <!-- SECTION 1: WHAT IS 3D MODELING? -->
+        <div class="section">
+            <h2>📚 What is 3D Modeling?</h2>
+            
+            <div class="definition-box">
+                <h3>Definition</h3>
+                <p><strong>3D modeling</strong> is the process of developing a mathematical representation of any three-dimensional surface or object using specialized software. Unlike 2D images, 3D models contain depth information and can be viewed from any angle.</p>
+                
+                <h3>Key Components:</h3>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">📐</div>
+                        <h4>Vertices & Polygons</h4>
+                        <p>Basic geometric elements forming the mesh</p>
+                    </div>
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">🎨</div>
+                        <h4>Materials & Textures</h4>
+                        <p>Surface appearance and image mapping</p>
+                    </div>
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">🦴</div>
+                        <h4>Rigging</h4>
+                        <p>Skeletal system for animation control</p>
+                    </div>
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">🎬</div>
+                        <h4>Animation</h4>
+                        <p>Creating movement through keyframes</p>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <p>Drag to rotate • Scroll to zoom • Right-click to pan</p>
+
+        <!-- SECTION 2: PROJECT PURPOSE -->
+        <div class="section">
+            <h2>🎯 Project Objectives & Purpose</h2>
+            
+            <p>This project demonstrates the complete 3D graphics workflow with specific educational goals:</p>
+            
+            <ul class="purpose-list">
+                <li><strong>Educational:</strong> Master the complete 3D creation pipeline using Blender</li>
+                <li><strong>Technical:</strong> Understand mesh topology, UV unwrapping, and skeletal systems</li>
+                <li><strong>Creative:</strong> Transform 2D references into a fully-realized 3D character</li>
+                <li><strong>Presentation:</strong> Showcase interactive 3D content on web platforms</li>
+                <li><strong>Professional:</strong> Build portfolio-ready work demonstrating technical skills</li>
+            </ul>
+            
+            <h3>Industry Applications:</h3>
+            <p>3D modeling skills are essential in <strong>game development, film production, virtual reality, architectural visualization, and product design</strong>. This project provides foundational training for these professional fields.</p>
+        </div>
+
+        <!-- SECTION 3: INTERACTIVE 3D VIEWER -->
+        <div class="section">
+            <h2>🖼️ Interactive 3D Model Viewer</h2>
+            <p>Below is the completed 3D model created in Blender. This interactive viewer demonstrates real-time 3D rendering in the browser.</p>
+            
+            <!-- 3D VIEWER CONTAINER -->
+            <div id="viewer">
+                <!-- Canvas will be inserted here -->
+            </div>
+            
+            <!-- CONTROLS -->
+            <div class="viewer-controls">
+                <button class="control-btn" id="centerBtn">🎯 Center Model</button>
+                <button class="control-btn" id="zoomInBtn">🔍 Zoom In</button>
+                <button class="control-btn" id="zoomOutBtn">🔍 Zoom Out</button>
+                <button class="control-btn" id="resetBtn">↺ Reset View</button>
+                <button class="control-btn" id="toggleRotate">⏸️ Pause Rotation</button>
+            </div>
+            
+            <div style="text-align: center; color: #aaa; margin-top: 10px;">
+                <strong>Controls:</strong> Drag = Rotate | Scroll = Zoom | Right-click = Pan | Double-click = Center
+            </div>
+            
+            <!-- STATUS -->
+            <div id="status" style="text-align: center; margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                <div id="statusText">🔄 Loading 3D viewer...</div>
+                <div id="progressBar" style="width:100%; height:4px; background:#333; margin-top:10px; border-radius:2px;">
+                    <div id="progressFill" style="width:0%; height:100%; background:#00ffcc; border-radius:2px; transition:width 0.3s;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: TECHNICAL IMPLEMENTATION -->
+        <div class="section">
+            <h2>⚙️ Technical Implementation</h2>
+            
+            <h3>Workflow Pipeline:</h3>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                1. <strong>Reference Gathering</strong> → 2. <strong>3D Modeling</strong> → 3. <strong>UV Unwrapping</strong> → 4. <strong>Texturing</strong> → 5. <strong>Rigging</strong> → 6. <strong>Animation</strong> → 7. <strong>Export/Web Integration</strong>
+            </div>
+            
+            <h3>Tools & Technologies:</h3>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🟠</div>
+                    <h4>Blender 4.0</h4>
+                    <p>Open-source 3D creation suite</p>
+                </div>
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🌐</div>
+                    <h4>Three.js</h4>
+                    <p>JavaScript 3D library</p>
+                </div>
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🚀</div>
+                    <h4>WebGL</h4>
+                    <p>Browser 3D graphics API</p>
+                </div>
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🐙</div>
+                    <h4>GitHub Pages</h4>
+                    <p>Free static web hosting</p>
+                </div>
+            </div>
+            
+            <h3>Model Statistics:</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 15px;">
+                <div style="background: rgba(0,255,204,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5em;">📐</div>
+                    <div>Polygon Mesh</div>
+                </div>
+                <div style="background: rgba(0,255,204,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5em;">🎨</div>
+                    <div>PBR Textures</div>
+                </div>
+                <div style="background: rgba(0,255,204,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5em;">🦴</div>
+                    <div>Bone Rig</div>
+                </div>
+                <div style="background: rgba(0,255,204,0.1); padding: 15px; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 1.5em;">🎬</div>
+                    <div>Animation Ready</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: CONCLUSION -->
+        <div class="section" style="background: linear-gradient(135deg, rgba(0,40,60,0.7), rgba(30,0,60,0.7));">
+            <h2>📝 Conclusion & Learnings</h2>
+            
+            <h3>Key Achievements:</h3>
+            <ul style="margin-left: 20px; margin-bottom: 20px;">
+                <li>Successfully completed the full 3D graphics pipeline</li>
+                <li>Created an interactive web-based 3D presentation</li>
+                <li>Mastered Blender's modeling, texturing, and animation tools</li>
+                <li>Integrated 3D content with modern web technologies</li>
+            </ul>
+            
+            <h3>Skills Developed:</h3>
+            <p>This project required understanding of <strong>3D geometry, lighting principles, animation timing, UV mapping, and web development</strong>. The ability to present 3D work interactively online is a valuable skill for portfolio presentation and professional demonstrations.</p>
+            
+            <h3>Future Applications:</h3>
+            <p>The skills developed here can be applied to <strong>game development, animated films, virtual reality experiences, architectural visualization, and product prototyping</strong>.</p>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>Computer Graphics - Practical Assignment 12</p>
+            <p>Interactive 3D Model | Created with Blender & Three.js</p>
+            <p>© 2024 Kara Montoure | GitHub: karamontoure26-creator</p>
+            <p style="margin-top: 10px; color: #00ffcc;">
+                Model loaded and rendered in real-time using WebGL technology
+            </p>
+        </footer>
     </div>
 
-    <!-- Three.js Libraries -->
+    <!-- THREE.JS LIBRARIES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
 
     <script>
-        // Simple 3D Viewer
-        console.log("Starting 3D viewer...");
+        // ====================
+        // CONFIGURATION
+        // ====================
+        const CONFIG = {
+            modelUrl: 'model.glb',
+            autoRotate: true,
+            zoomSpeed: 1.5
+        };
         
-        // 1. Basic setup
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x0a0e1a);
+        // ====================
+        // STATE VARIABLES
+        // ====================
+        let scene, camera, renderer, controls, model;
+        let autoRotate = CONFIG.autoRotate;
+        let boundingSphere = new THREE.Sphere();
         
-        const camera = new THREE.PerspectiveCamera(75, 800/600, 0.1, 1000);
-        camera.position.set(0, 2, 5);
+        // ====================
+        // DOM ELEMENTS
+        // ====================
+        const statusText = document.getElementById('statusText');
+        const progressFill = document.getElementById('progressFill');
+        const viewer = document.getElementById('viewer');
+        const centerBtn = document.getElementById('centerBtn');
+        const zoomInBtn = document.getElementById('zoomInBtn');
+        const zoomOutBtn = document.getElementById('zoomOutBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const toggleRotateBtn = document.getElementById('toggleRotate');
         
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(800, 600);
-        renderer.shadowMap.enabled = true;
-        document.getElementById('viewer').appendChild(renderer.domElement);
-        
-        // 2. Controls
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
-        
-        // 3. Lighting
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-        
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        directionalLight.position.set(5, 10, 3);
-        scene.add(directionalLight);
-        
-        // 4. Load model
-        const loader = new THREE.GLTFLoader();
-        
-        loader.load(
-            'model.glb',
-            function(gltf) {
-                console.log("✅ Model loaded!");
-                const model = gltf.scene;
-                
-                // Center model
-                const box = new THREE.Box3().setFromObject(model);
-                const center = box.getCenter(new THREE.Vector3());
-                const size = box.getSize(new THREE.Vector3());
-                
-                model.position.x = -center.x;
-                model.position.y = -box.min.y;
-                model.position.z = -center.z;
-                
-                scene.add(model);
-                
-                // Auto-rotate
-                function animate() {
-                    requestAnimationFrame(animate);
-                    model.rotation.y += 0.005;
-                    controls.update();
-                    renderer.render(scene, camera);
-                }
-                animate();
-                
-                // Update UI
-                document.querySelector('p').innerHTML = '✅ Model loaded! Drag to rotate • Scroll to zoom';
-            },
-            function(xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            function(error) {
-                console.error('Error loading model:', error);
-                document.querySelector('p').innerHTML = '❌ Error loading model. Check console.';
-                document.querySelector('p').style.color = '#ff5555';
+        // ====================
+        // UPDATE STATUS
+        // ====================
+        function updateStatus(message, progress = null) {
+            statusText.innerHTML = message;
+            if (progress !== null) {
+                progressFill.style.width = progress + '%';
             }
-        );
+        }
         
-        // Handle errors
-        window.addEventListener('error', function(e) {
-            console.error('Global error:', e.error);
+        // ====================
+        // INITIALIZE 3D SCENE
+        // ====================
+        function init() {
+            updateStatus('🚀 Initializing 3D scene...', 20);
+            
+            // 1. Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0e1a);
+            
+            // 2. Create camera
+            const aspect = viewer.clientWidth / viewer.clientHeight;
+            camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+            camera.position.set(0, 2, 8);
+            
+            updateStatus('🎨 Creating renderer...', 40);
+            
+            // 3. Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+            renderer.shadowMap.enabled = true;
+            viewer.appendChild(renderer.domElement);
+            
+            // 4. Add controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            
+            updateStatus('💡 Adding lighting...', 60);
+            
+            // 5. Add lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 20, 5);
+            scene.add(directionalLight);
+            
+            updateStatus('📦 Loading 3D model...', 80);
+            
+            // 6. Load model
+            const loader = new THREE.GLTFLoader();
+            
+            loader.load(
+                CONFIG.modelUrl,
+                
+                // Success callback
+                function(gltf) {
+                    updateStatus('✨ Processing model...', 90);
+                    
+                    model = gltf.scene;
+                    
+                    // Enable shadows
+                    model.traverse(function(child) {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    scene.add(model);
+                    
+                    // Calculate bounds
+                    const box = new THREE.Box3().setFromObject(model);
+                    box.getBoundingSphere(boundingSphere);
+                    
+                    // Center model
+                    model.position.x = -boundingSphere.center.x;
+                    model.position.y = -box.min.y;
+                    model.position.z = -boundingSphere.center.z;
+                    
+                    // Update camera position
+                    camera.position.z = boundingSphere.radius * 2.5;
+                    controls.target.copy(boundingSphere.center);
+                    controls.update();
+                    
+                    updateStatus('✅ Model loaded successfully!', 100);
+                    
+                    // Start animation
+                    animate();
+                },
+                
+                // Progress callback
+                function(xhr) {
+                    const percent = 80 + (xhr.loaded / xhr.total * 15);
+                    updateStatus(`📥 Loading: ${Math.round(xhr.loaded / xhr.total * 100)}%`, percent);
+                },
+                
+                // Error callback
+                function(error) {
+                    console.error('Error:', error);
+                    updateStatus('❌ Failed to load model', 100);
+                    statusText.style.color = '#ff5555';
+                }
+            );
+            
+            // 7. Setup event listeners
+            setupEventListeners();
+            
+            // 8. Handle window resize
+            window.addEventListener('resize', onWindowResize);
+        }
+        
+        // ====================
+        // EVENT LISTENERS
+        // ====================
+        function setupEventListeners() {
+            // Center button
+            centerBtn.addEventListener('click', function() {
+                if (model && boundingSphere.radius > 0) {
+                    controls.target.copy(boundingSphere.center);
+                    controls.update();
+                    updateStatus('🎯 Model centered', 100);
+                }
+            });
+            
+            // Zoom buttons
+            zoomInBtn.addEventListener('click', function() {
+                camera.zoom /= CONFIG.zoomSpeed;
+                camera.updateProjectionMatrix();
+            });
+            
+            zoomOutBtn.addEventListener('click', function() {
+                camera.zoom *= CONFIG.zoomSpeed;
+                camera.updateProjectionMatrix();
+            });
+            
+            // Reset button
+            resetBtn.addEventListener('click', function() {
+                camera.position.set(0, 2, 8);
+                camera.zoom = 1;
+                camera.updateProjectionMatrix();
+                controls.target.set(0, 0, 0);
+                controls.update();
+                updateStatus('↺ View reset', 100);
+            });
+            
+            // Toggle rotation
+            toggleRotateBtn.addEventListener('click', function() {
+                autoRotate = !autoRotate;
+                toggleRotateBtn.innerHTML = autoRotate ? '⏸️ Pause Rotation' : '▶️ Resume Rotation';
+                updateStatus(autoRotate ? '🔄 Auto-rotation enabled' : '⏸️ Auto-rotation paused', 100);
+            });
+            
+            // Double-click to center
+            renderer.domElement.addEventListener('dblclick', function() {
+                centerBtn.click();
+            });
+        }
+        
+        // ====================
+        // WINDOW RESIZE
+        // ====================
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            
+            camera.aspect = viewer.clientWidth / viewer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+        }
+        
+        // ====================
+        // ANIMATION LOOP
+        // ====================
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            if (model && autoRotate) {
+                model.rotation.y += 0.005;
+            }
+            
+            if (controls) {
+                controls.update();
+            }
+            
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+        
+        // ====================
+        // START APPLICATION
+        // ====================
+        window.addEventListener('DOMContentLoaded', function() {
+            // Start initialization
+            setTimeout(init, 500);
         });
     </script>
 </body>
