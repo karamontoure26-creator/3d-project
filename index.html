@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D Model - Kara Montoure</title>
+    <title>3D Computer Graphics Presentation - Toure Karamon</title>
     <meta charset="utf-8">
     <style>
         * {
@@ -11,44 +11,97 @@
         }
         
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             color: white;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        #container {
-            width: 100%;
-            max-width: 1000px;
-            text-align: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             padding: 20px;
         }
         
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #00ffcc;
+        }
+        
         h1 {
+            font-size: 2.8em;
+            background: linear-gradient(90deg, #00ffcc, #00ccff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             margin-bottom: 10px;
+            text-shadow: 0 5px 15px rgba(0, 255, 204, 0.3);
+        }
+        
+        h2 {
             color: #00ffcc;
+            margin: 25px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+        }
+        
+        h3 {
+            color: #00ccff;
+            margin: 20px 0 10px 0;
         }
         
         .subtitle {
-            margin-bottom: 30px;
             color: #aaa;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: rgba(20, 25, 45, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .definition-box {
+            background: rgba(0, 40, 60, 0.5);
+            border-left: 5px solid #00ffcc;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .purpose-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .purpose-list li {
+            background: rgba(0, 255, 204, 0.1);
+            margin: 10px 0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #00ffcc;
         }
         
         #viewer {
-            width: 800px;
+            width: 100%;
             height: 600px;
             border: 3px solid #00ffcc;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            background: #0d1525;
-            margin: 0 auto 20px;
+            border-radius: 15px;
+            background: #0a0e1a;
+            margin: 20px 0;
             position: relative;
             overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
         }
         
         canvas {
@@ -57,69 +110,266 @@
             height: 100% !important;
         }
         
+        .controls-info {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+        }
+        
+        .control-item {
+            text-align: center;
+            padding: 10px;
+            margin: 5px;
+        }
+        
+        .control-icon {
+            font-size: 1.5em;
+            color: #00ffcc;
+            margin-bottom: 5px;
+        }
+        
         #status {
             background: rgba(0, 0, 0, 0.8);
             padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
             border: 1px solid #444;
-            max-width: 800px;
-            width: 100%;
         }
         
-        .controls {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #00ffcc;
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
         }
         
-        .error {
-            color: #ff5555;
-            background: rgba(255, 0, 0, 0.1);
-            padding: 15px;
-            border-radius: 5px;
-            border: 1px solid #ff5555;
-            margin: 20px;
-        }
-        
-        #fallbackImage {
-            display: none;
-            max-width: 100%;
+        .tech-card {
+            background: rgba(30, 35, 55, 0.7);
+            padding: 20px;
             border-radius: 10px;
-            margin: 20px auto;
-            border: 2px solid #444;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .tech-card:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 255, 204, 0.1);
+        }
+        
+        .conclusion {
+            background: linear-gradient(135deg, rgba(0, 40, 60, 0.8), rgba(30, 0, 60, 0.8));
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 40px;
+            border: 1px solid rgba(0, 255, 204, 0.3);
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: #888;
+            font-size: 0.9em;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #222;
+            border-radius: 3px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffcc, #00ccff);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            #viewer {
+                height: 400px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="container">
-        <h1>🎬 3D Model Presentation</h1>
-        <div class="subtitle">Computer Graphics Assignment | Toure Karamon </div>
-        
-        <!-- The 3D viewer container -->
-        <div id="viewer">
-            <!-- Canvas will be inserted here by Three.js -->
-        </div>
-        
-        <!-- Fallback image if 3D fails - LINE 134 UPDATED -->
-        <img id="fallbackImage" src="https://raw.githubusercontent.com/karamontoure26-creator/3d-project/main/screenshot.jpg" alt="3D Model Screenshot">
-        
-        <div class="controls">
-            🖱️ <strong>Controls:</strong> Drag = Rotate | Scroll = Zoom | Right-click = Pan
-        </div>
-        
-        <div id="status">
-            <div id="statusText">🔄 Initializing 3D viewer...</div>
-            <div id="progressBar" style="width:100%; height:4px; background:#333; margin-top:10px; border-radius:2px;">
-                <div id="progressFill" style="width:0%; height:100%; background:#00ffcc; border-radius:2px; transition:width 0.3s;"></div>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1>🎬 3D Computer Graphics Presentation</h1>
+            <div class="subtitle">Practical Assignment 12 | Blender 3D Modeling Project</div>
+            <div style="color: #00ccff; font-size: 1.1em;">Created by: <strong>Kara Montoure</strong></div>
+            <div style="color: #aaa; margin-top: 5px;">MacBook Air M4 | Blender 4.0 | GitHub Pages</div>
+        </header>
+
+        <!-- SECTION 1: INTRODUCTION & DEFINITION -->
+        <div class="section">
+            <h2>📚 What is 3D Modeling?</h2>
+            
+            <div class="definition-box">
+                <h3>Definition</h3>
+                <p><strong>3D modeling</strong> is the process of creating a mathematical representation of any three-dimensional surface or object using specialized software. The product is called a <strong>3D model</strong>, which can be displayed as a two-dimensional image through a process called 3D rendering or used in computer simulations.</p>
+                
+                <h3 style="margin-top: 20px;">Key Components of 3D Modeling:</h3>
+                <div class="tech-grid">
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">📐</div>
+                        <h4>Vertices & Polygons</h4>
+                        <p>Basic building blocks of 3D geometry</p>
+                    </div>
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">🎨</div>
+                        <h4>Materials & Textures</h4>
+                        <p>Surface properties and images</p>
+                    </div>
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">🦴</div>
+                        <h4>Rigging & Skeletons</h4>
+                        <p>Bone systems for animation</p>
+                    </div>
+                    <div class="tech-card">
+                        <div style="font-size: 2em;">🎬</div>
+                        <h4>Animation</h4>
+                        <p>Movement through keyframes</p>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- SECTION 2: PROJECT PURPOSE -->
+        <div class="section">
+            <h2>🎯 Project Objectives & Purpose</h2>
+            
+            <p>This project demonstrates the <strong>complete 3D graphics pipeline</strong> from concept to interactive presentation. The main goals were:</p>
+            
+            <ul class="purpose-list">
+                <li><strong>Educational Objective:</strong> To master the complete 3D creation workflow using Blender software</li>
+                <li><strong>Technical Objective:</strong> To understand mesh topology, UV unwrapping, and skeletal animation</li>
+                <li><strong>Creative Objective:</strong> To transform 2D references into a fully-realized 3D character</li>
+                <li><strong>Presentation Objective:</strong> To showcase interactive 3D content on web platforms</li>
+                <li><strong>Professional Objective:</strong> To build portfolio-ready work demonstrating technical skills</li>
+            </ul>
+            
+            <h3>Why This Matters:</h3>
+            <p>3D modeling skills are essential in industries like <strong>game development, film production, architectural visualization, virtual reality, and product design</strong>. This project serves as foundational training for these professional applications.</p>
+        </div>
+
+        <!-- SECTION 3: INTERACTIVE VIEWER -->
+        <div class="section">
+            <h2>🖼️ Interactive 3D Model Viewer</h2>
+            <p>Below is the completed 3D model. This interactive viewer demonstrates how 3D content can be shared and experienced on the web.</p>
+            
+            <div id="viewer">
+                <!-- 3D canvas will be inserted here -->
+            </div>
+            
+            <div class="controls-info">
+                <div class="control-item">
+                    <div class="control-icon">↔️</div>
+                    <div>Drag = Rotate</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-icon">📏</div>
+                    <div>Scroll = Zoom</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-icon">🖱️</div>
+                    <div>Right-drag = Pan</div>
+                </div>
+                <div class="control-item">
+                    <div class="control-icon">🔄</div>
+                    <div>Auto-rotation = On</div>
+                </div>
+            </div>
+            
+            <div id="status">
+                <div id="statusText">🔄 Initializing 3D WebGL Viewer...</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 4: TECHNICAL IMPLEMENTATION -->
+        <div class="section">
+            <h2>⚙️ Technical Implementation</h2>
+            
+            <h3>Workflow Pipeline:</h3>
+            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin: 15px 0;">
+                1. <strong>Reference Gathering</strong> → 2. <strong>3D Modeling</strong> → 3. <strong>UV Unwrapping</strong> → 4. <strong>Texturing</strong> → 5. <strong>Rigging</strong> → 6. <strong>Animation</strong> → 7. <strong>Export/Web Integration</strong>
+            </div>
+            
+            <h3>Tools & Technologies Used:</h3>
+            <div class="tech-grid">
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🟠</div>
+                    <h4>Blender 4.0</h4>
+                    <p>Open-source 3D creation suite</p>
+                </div>
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🌐</div>
+                    <h4>Three.js</h4>
+                    <p>JavaScript 3D library</p>
+                </div>
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🚀</div>
+                    <h4>WebGL</h4>
+                    <p>Browser 3D graphics API</p>
+                </div>
+                <div class="tech-card">
+                    <div style="font-size: 2em;">🐙</div>
+                    <h4>GitHub Pages</h4>
+                    <p>Free web hosting</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 5: CONCLUSION -->
+        <div class="conclusion">
+            <h2>📝 Conclusion & Learnings</h2>
+            
+            <h3>Key Achievements:</h3>
+            <ul style="margin-left: 20px; margin-bottom: 20px;">
+                <li>Successfully completed the full 3D graphics pipeline</li>
+                <li>Created an interactive web-based 3D presentation</li>
+                <li>Mastered Blender's modeling, texturing, and animation tools</li>
+                <li>Integrated 3D content with modern web technologies</li>
+            </ul>
+            
+            <h3>Educational Value:</h3>
+            <p>This project demonstrates that 3D modeling is not just artistic but also highly technical, requiring understanding of <strong>geometry, lighting, animation principles, and software engineering</strong>. The ability to present 3D work interactively online adds significant value for portfolio presentation and client demonstrations.</p>
+            
+            <h3>Future Applications:</h3>
+            <p>The skills developed here can be applied to <strong>game development, animated films, virtual reality experiences, architectural visualization, and product prototyping</strong>.</p>
+        </div>
+
+        <!-- FOOTER -->
+        <footer>
+            <p>Computer Graphics - Practical Assignment 12</p>
+            <p>Interactive 3D Model | Created with Blender & Three.js</p>
+            <p>© 2024 Kara Montoure | GitHub: karamontoure26-creator</p>
+            <p style="margin-top: 10px; color: #00ffcc;">Model loaded and rendered in real-time using WebGL technology</p>
+        </footer>
     </div>
 
-    <!-- Load Three.js from CDN -->
+    <!-- THREE.JS LIBRARIES -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
@@ -129,11 +379,9 @@
         // CONFIGURATION
         // ====================
         const CONFIG = {
-            modelUrl: 'model.glb',  // Your model file
-            backgroundColor: 0x0d1525,
-            cameraDistance: 5,
-            autoRotate: true,
-            showGrid: true
+            modelUrl: 'model.glb',
+            backgroundColor: 0x0a0e1a,
+            autoRotate: true
         };
         
         // ====================
@@ -147,7 +395,6 @@
         // ====================
         const statusText = document.getElementById('statusText');
         const progressFill = document.getElementById('progressFill');
-        const fallbackImage = document.getElementById('fallbackImage');
         const viewer = document.getElementById('viewer');
         
         // ====================
@@ -158,57 +405,13 @@
             if (progress !== null) {
                 progressFill.style.width = progress + '%';
             }
-            console.log('Status:', message);
-        }
-        
-        // ====================
-        // SHOW ERROR
-        // ====================
-        function showError(message) {
-            updateStatus('❌ ' + message);
-            statusText.style.color = '#ff5555';
-            
-            // Show fallback option
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'error';
-            errorDiv.innerHTML = `
-                <h3>3D Viewer Failed to Load</h3>
-                <p>${message}</p>
-                <p><strong>Alternative:</strong> You can <a href="${CONFIG.modelUrl}" style="color:#00ffcc;">download the 3D model file</a> to view in Blender.</p>
-            `;
-            document.getElementById('status').appendChild(errorDiv);
-            
-            // Hide viewer, show fallback
-            viewer.style.display = 'none';
-            fallbackImage.style.display = 'block';
-        }
-        
-        // ====================
-        // CHECK WEBGL SUPPORT
-        // ====================
-        function checkWebGL() {
-            try {
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                return gl && gl instanceof WebGLRenderingContext;
-            } catch (e) {
-                return false;
-            }
         }
         
         // ====================
         // INITIALIZE 3D SCENE
         // ====================
         function init() {
-            updateStatus('🔍 Checking WebGL support...');
-            
-            // Check if WebGL is available
-            if (!checkWebGL()) {
-                showError('Your browser/device does not support WebGL. Try Chrome/Firefox on a different device.');
-                return;
-            }
-            
-            updateStatus('🚀 Creating 3D scene...');
+            updateStatus('🔍 Checking WebGL support...', 10);
             
             // 1. Create scene
             scene = new THREE.Scene();
@@ -217,26 +420,25 @@
             // 2. Create camera
             const aspect = viewer.clientWidth / viewer.clientHeight;
             camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
-            camera.position.set(0, 2, CONFIG.cameraDistance);
+            camera.position.set(5, 3, 8);
+            
+            updateStatus('🚀 Creating renderer...', 30);
             
             // 3. Create renderer
             renderer = new THREE.WebGLRenderer({ 
                 antialias: true,
-                alpha: true,
-                powerPreference: "high-performance"
+                alpha: true
             });
             renderer.setSize(viewer.clientWidth, viewer.clientHeight);
             renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             viewer.appendChild(renderer.domElement);
             
             // 4. Add controls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
-            controls.screenSpacePanning = false;
-            controls.minDistance = 1;
-            controls.maxDistance = 50;
+            
+            updateStatus('💡 Adding lighting...', 50);
             
             // 5. Add lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
@@ -244,18 +446,11 @@
             
             const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
             directionalLight.position.set(10, 20, 5);
-            directionalLight.castShadow = true;
             scene.add(directionalLight);
             
-            // 6. Add grid helper
-            if (CONFIG.showGrid) {
-                const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
-                scene.add(gridHelper);
-            }
+            updateStatus('📦 Loading 3D model...', 70);
             
-            updateStatus('📦 Loading 3D model...', 30);
-            
-            // 7. Load the model
+            // 6. Load the model
             const loader = new THREE.GLTFLoader();
             
             loader.load(
@@ -263,7 +458,7 @@
                 
                 // Success callback
                 function(gltf) {
-                    updateStatus('🎨 Processing model...', 70);
+                    updateStatus('🎨 Processing model...', 85);
                     
                     model = gltf.scene;
                     
@@ -277,22 +472,25 @@
                     
                     scene.add(model);
                     
-                    // Center and scale model
+                    // Center model
                     const box = new THREE.Box3().setFromObject(model);
                     const center = box.getCenter(new THREE.Vector3());
                     const size = box.getSize(new THREE.Vector3());
                     
-                    // Center model
+                    // Position model
                     model.position.x = -center.x;
                     model.position.y = -box.min.y;
                     model.position.z = -center.z;
                     
+                    // Scale if needed
+                    const maxSize = Math.max(size.x, size.y, size.z);
+                    if (maxSize > 10) {
+                        const scale = 5 / maxSize;
+                        model.scale.multiplyScalar(scale);
+                    }
+                    
                     updateStatus('✅ Model loaded successfully!', 100);
                     isLoading = false;
-                    
-                    // Update controls target
-                    controls.target.set(0, size.y / 2, 0);
-                    controls.update();
                     
                     // Start animation
                     animate();
@@ -300,14 +498,15 @@
                 
                 // Progress callback
                 function(xhr) {
-                    const percent = (xhr.loaded / xhr.total * 100).toFixed(1);
-                    updateStatus(`📥 Downloading: ${percent}%`, percent);
+                    const percent = Math.min(98, 70 + (xhr.loaded / xhr.total * 25));
+                    updateStatus(`📥 Downloading model: ${Math.round(xhr.loaded / xhr.total * 100)}%`, percent);
                 },
                 
                 // Error callback
                 function(error) {
-                    console.error('GLTF Loader Error:', error);
-                    showError('Failed to load 3D model. Check if "model.glb" exists in the repository.');
+                    console.error('Error:', error);
+                    updateStatus('❌ Failed to load model. Please check console.', 100);
+                    statusText.style.color = '#ff5555';
                 }
             );
             
@@ -346,22 +545,12 @@
         }
         
         // ====================
-        // START EVERYTHING
+        // START APPLICATION
         // ====================
-        updateStatus('⚡ Starting 3D viewer...');
-        
-        // Wait for page to load
         window.addEventListener('DOMContentLoaded', function() {
-            // Small delay to ensure DOM is ready
-            setTimeout(init, 100);
+            // Start initialization
+            setTimeout(init, 500);
         });
-        
-        // Fallback timeout
-        setTimeout(function() {
-            if (isLoading) {
-                showError('Loading timeout. The model might be too large or there are network issues.');
-            }
-        }, 30000); // 30 second timeout
     </script>
 </body>
 </html>
