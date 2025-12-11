@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D Computer Graphics Presentation - Toure Karamon</title>
+    <title>3D Computer Graphics Presentation - Kara Montoure</title>
     <meta charset="utf-8">
     <style>
         * {
@@ -16,6 +16,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             line-height: 1.6;
             padding: 20px;
+            overflow-x: hidden;
         }
         
         .container {
@@ -28,69 +29,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        header {
-            text-align: center;
-            margin-bottom: 40px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #00ffcc;
-        }
-        
-        h1 {
-            font-size: 2.8em;
-            background: linear-gradient(90deg, #00ffcc, #00ccff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 10px;
-            text-shadow: 0 5px 15px rgba(0, 255, 204, 0.3);
-        }
-        
-        h2 {
-            color: #00ffcc;
-            margin: 25px 0 15px 0;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(0, 255, 204, 0.3);
-        }
-        
-        h3 {
-            color: #00ccff;
-            margin: 20px 0 10px 0;
-        }
-        
-        .subtitle {
-            color: #aaa;
-            font-size: 1.2em;
-            margin-bottom: 30px;
-        }
-        
-        .section {
-            background: rgba(20, 25, 45, 0.8);
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .definition-box {
-            background: rgba(0, 40, 60, 0.5);
-            border-left: 5px solid #00ffcc;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        
-        .purpose-list {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        .purpose-list li {
-            background: rgba(0, 255, 204, 0.1);
-            margin: 10px 0;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border-left: 4px solid #00ffcc;
-        }
+        /* ... (keep all previous CSS styles) ... */
         
         #viewer {
             width: 100%;
@@ -102,271 +41,104 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            cursor: grab;
         }
         
-        canvas {
-            display: block;
-            width: 100% !important;
-            height: 100% !important;
+        #viewer:active {
+            cursor: grabbing;
         }
         
-        .controls-info {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
+        .zoom-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
             border-radius: 10px;
-            margin: 15px 0;
-            display: flex;
-            justify-content: space-around;
-            flex-wrap: wrap;
-        }
-        
-        .control-item {
-            text-align: center;
             padding: 10px;
-            margin: 5px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
         
-        .control-icon {
-            font-size: 1.5em;
-            color: #00ffcc;
-            margin-bottom: 5px;
+        .zoom-btn {
+            background: rgba(0, 255, 204, 0.2);
+            color: white;
+            border: 1px solid #00ffcc;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
         }
         
-        #status {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
+        .zoom-btn:hover {
+            background: rgba(0, 255, 204, 0.4);
+            transform: scale(1.1);
+        }
+        
+        .center-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid #00ccff;
             border-radius: 10px;
-            margin-top: 20px;
-            border: 1px solid #444;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
         }
         
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
+        .center-btn:hover {
+            background: rgba(0, 204, 255, 0.3);
         }
         
-        .tech-card {
-            background: rgba(30, 35, 55, 0.7);
-            padding: 20px;
+        .model-bounds {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px dashed rgba(0, 255, 204, 0.3);
             border-radius: 10px;
-            text-align: center;
-            transition: transform 0.3s;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         
-        .tech-card:hover {
-            transform: translateY(-5px);
-            background: rgba(0, 255, 204, 0.1);
-        }
-        
-        .conclusion {
-            background: linear-gradient(135deg, rgba(0, 40, 60, 0.8), rgba(30, 0, 60, 0.8));
-            padding: 25px;
-            border-radius: 15px;
-            margin-top: 40px;
-            border: 1px solid rgba(0, 255, 204, 0.3);
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #888;
-            font-size: 0.9em;
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: #222;
-            border-radius: 3px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ffcc, #00ccff);
-            border-radius: 3px;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            #viewer {
-                height: 400px;
-            }
-            
-            h1 {
-                font-size: 2em;
-            }
+        .model-bounds.visible {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- HEADER -->
-        <header>
-            <h1>🎬 3D Computer Graphics Presentation</h1>
-            <div class="subtitle">Practical Assignment 12 | Blender 3D Modeling Project</div>
-            <div style="color: #00ccff; font-size: 1.1em;">Created by: <strong>Kara Montoure</strong></div>
-            <div style="color: #aaa; margin-top: 5px;">MacBook Air M4 | Blender 4.0 | GitHub Pages</div>
-        </header>
-
-        <!-- SECTION 1: INTRODUCTION & DEFINITION -->
-        <div class="section">
-            <h2>📚 What is 3D Modeling?</h2>
-            
-            <div class="definition-box">
-                <h3>Definition</h3>
-                <p><strong>3D modeling</strong> is the process of creating a mathematical representation of any three-dimensional surface or object using specialized software. The product is called a <strong>3D model</strong>, which can be displayed as a two-dimensional image through a process called 3D rendering or used in computer simulations.</p>
-                
-                <h3 style="margin-top: 20px;">Key Components of 3D Modeling:</h3>
-                <div class="tech-grid">
-                    <div class="tech-card">
-                        <div style="font-size: 2em;">📐</div>
-                        <h4>Vertices & Polygons</h4>
-                        <p>Basic building blocks of 3D geometry</p>
-                    </div>
-                    <div class="tech-card">
-                        <div style="font-size: 2em;">🎨</div>
-                        <h4>Materials & Textures</h4>
-                        <p>Surface properties and images</p>
-                    </div>
-                    <div class="tech-card">
-                        <div style="font-size: 2em;">🦴</div>
-                        <h4>Rigging & Skeletons</h4>
-                        <p>Bone systems for animation</p>
-                    </div>
-                    <div class="tech-card">
-                        <div style="font-size: 2em;">🎬</div>
-                        <h4>Animation</h4>
-                        <p>Movement through keyframes</p>
-                    </div>
-                </div>
+    <!-- ... (keep all previous HTML structure) ... -->
+    
+    <!-- SECTION 3: INTERACTIVE VIEWER -->
+    <div class="section">
+        <h2>🖼️ Interactive 3D Model Viewer</h2>
+        <p>Below is the completed 3D model. This interactive viewer demonstrates how 3D content can be shared and experienced on the web.</p>
+        
+        <div id="viewer">
+            <!-- 3D canvas will be inserted here -->
+            <div class="model-bounds" id="modelBounds"></div>
+            <button class="center-btn" id="centerBtn" title="Center Model">🎯 Center</button>
+            <div class="zoom-controls">
+                <button class="zoom-btn" id="zoomIn" title="Zoom In">+</button>
+                <button class="zoom-btn" id="zoomOut" title="Zoom Out">-</button>
+                <button class="zoom-btn" id="resetZoom" title="Reset Zoom">↺</button>
             </div>
         </div>
-
-        <!-- SECTION 2: PROJECT PURPOSE -->
-        <div class="section">
-            <h2>🎯 Project Objectives & Purpose</h2>
-            
-            <p>This project demonstrates the <strong>complete 3D graphics pipeline</strong> from concept to interactive presentation. The main goals were:</p>
-            
-            <ul class="purpose-list">
-                <li><strong>Educational Objective:</strong> To master the complete 3D creation workflow using Blender software</li>
-                <li><strong>Technical Objective:</strong> To understand mesh topology, UV unwrapping, and skeletal animation</li>
-                <li><strong>Creative Objective:</strong> To transform 2D references into a fully-realized 3D character</li>
-                <li><strong>Presentation Objective:</strong> To showcase interactive 3D content on web platforms</li>
-                <li><strong>Professional Objective:</strong> To build portfolio-ready work demonstrating technical skills</li>
-            </ul>
-            
-            <h3>Why This Matters:</h3>
-            <p>3D modeling skills are essential in industries like <strong>game development, film production, architectural visualization, virtual reality, and product design</strong>. This project serves as foundational training for these professional applications.</p>
-        </div>
-
-        <!-- SECTION 3: INTERACTIVE VIEWER -->
-        <div class="section">
-            <h2>🖼️ Interactive 3D Model Viewer</h2>
-            <p>Below is the completed 3D model. This interactive viewer demonstrates how 3D content can be shared and experienced on the web.</p>
-            
-            <div id="viewer">
-                <!-- 3D canvas will be inserted here -->
-            </div>
-            
-            <div class="controls-info">
-                <div class="control-item">
-                    <div class="control-icon">↔️</div>
-                    <div>Drag = Rotate</div>
-                </div>
-                <div class="control-item">
-                    <div class="control-icon">📏</div>
-                    <div>Scroll = Zoom</div>
-                </div>
-                <div class="control-item">
-                    <div class="control-icon">🖱️</div>
-                    <div>Right-drag = Pan</div>
-                </div>
-                <div class="control-item">
-                    <div class="control-icon">🔄</div>
-                    <div>Auto-rotation = On</div>
-                </div>
-            </div>
-            
-            <div id="status">
-                <div id="statusText">🔄 Initializing 3D WebGL Viewer...</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 4: TECHNICAL IMPLEMENTATION -->
-        <div class="section">
-            <h2>⚙️ Technical Implementation</h2>
-            
-            <h3>Workflow Pipeline:</h3>
-            <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin: 15px 0;">
-                1. <strong>Reference Gathering</strong> → 2. <strong>3D Modeling</strong> → 3. <strong>UV Unwrapping</strong> → 4. <strong>Texturing</strong> → 5. <strong>Rigging</strong> → 6. <strong>Animation</strong> → 7. <strong>Export/Web Integration</strong>
-            </div>
-            
-            <h3>Tools & Technologies Used:</h3>
-            <div class="tech-grid">
-                <div class="tech-card">
-                    <div style="font-size: 2em;">🟠</div>
-                    <h4>Blender 4.0</h4>
-                    <p>Open-source 3D creation suite</p>
-                </div>
-                <div class="tech-card">
-                    <div style="font-size: 2em;">🌐</div>
-                    <h4>Three.js</h4>
-                    <p>JavaScript 3D library</p>
-                </div>
-                <div class="tech-card">
-                    <div style="font-size: 2em;">🚀</div>
-                    <h4>WebGL</h4>
-                    <p>Browser 3D graphics API</p>
-                </div>
-                <div class="tech-card">
-                    <div style="font-size: 2em;">🐙</div>
-                    <h4>GitHub Pages</h4>
-                    <p>Free web hosting</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- SECTION 5: CONCLUSION -->
-        <div class="conclusion">
-            <h2>📝 Conclusion & Learnings</h2>
-            
-            <h3>Key Achievements:</h3>
-            <ul style="margin-left: 20px; margin-bottom: 20px;">
-                <li>Successfully completed the full 3D graphics pipeline</li>
-                <li>Created an interactive web-based 3D presentation</li>
-                <li>Mastered Blender's modeling, texturing, and animation tools</li>
-                <li>Integrated 3D content with modern web technologies</li>
-            </ul>
-            
-            <h3>Educational Value:</h3>
-            <p>This project demonstrates that 3D modeling is not just artistic but also highly technical, requiring understanding of <strong>geometry, lighting, animation principles, and software engineering</strong>. The ability to present 3D work interactively online adds significant value for portfolio presentation and client demonstrations.</p>
-            
-            <h3>Future Applications:</h3>
-            <p>The skills developed here can be applied to <strong>game development, animated films, virtual reality experiences, architectural visualization, and product prototyping</strong>.</p>
-        </div>
-
-        <!-- FOOTER -->
-        <footer>
-            <p>Computer Graphics - Practical Assignment 12</p>
-            <p>Interactive 3D Model | Created with Blender & Three.js</p>
-            <p>© 2024 Kara Montoure | GitHub: karamontoure26-creator</p>
-            <p style="margin-top: 10px; color: #00ffcc;">Model loaded and rendered in real-time using WebGL technology</p>
-        </footer>
+        
+        <!-- ... (rest of your HTML) ... -->
     </div>
 
     <!-- THREE.JS LIBRARIES -->
@@ -381,7 +153,10 @@
         const CONFIG = {
             modelUrl: 'model.glb',
             backgroundColor: 0x0a0e1a,
-            autoRotate: true
+            autoRotate: true,
+            zoomSpeed: 1.2,
+            minZoom: 0.5,
+            maxZoom: 10
         };
         
         // ====================
@@ -389,6 +164,8 @@
         // ====================
         let scene, camera, renderer, controls, model;
         let isLoading = true;
+        let boundingBox = new THREE.Box3();
+        let boundingSphere = new THREE.Sphere();
         
         // ====================
         // DOM ELEMENTS
@@ -396,6 +173,11 @@
         const statusText = document.getElementById('statusText');
         const progressFill = document.getElementById('progressFill');
         const viewer = document.getElementById('viewer');
+        const centerBtn = document.getElementById('centerBtn');
+        const zoomInBtn = document.getElementById('zoomIn');
+        const zoomOutBtn = document.getElementById('zoomOut');
+        const resetZoomBtn = document.getElementById('resetZoom');
+        const modelBounds = document.getElementById('modelBounds');
         
         // ====================
         // UPDATE STATUS
@@ -404,6 +186,166 @@
             statusText.innerHTML = message;
             if (progress !== null) {
                 progressFill.style.width = progress + '%';
+            }
+        }
+        
+        // ====================
+        // CALCULATE MODEL BOUNDS
+        // ====================
+        function calculateModelBounds() {
+            if (!model) return;
+            
+            boundingBox.setFromObject(model);
+            boundingBox.getBoundingSphere(boundingSphere);
+            
+            // Update visual bounds indicator
+            const sphereRadius = boundingSphere.radius;
+            const boundsSize = sphereRadius * 2;
+            
+            // Scale bounds indicator (visual only)
+            const maxViewportDim = Math.min(viewer.clientWidth, viewer.clientHeight);
+            const indicatorSize = Math.min(150, (boundsSize / 10) * 50);
+            
+            modelBounds.style.width = indicatorSize + 'px';
+            modelBounds.style.height = indicatorSize + 'px';
+        }
+        
+        // ====================
+        // CENTER MODEL FUNCTION
+        // ====================
+        function centerModel() {
+            if (!model || !camera || !controls) return;
+            
+            calculateModelBounds();
+            
+            // Show bounds indicator briefly
+            modelBounds.classList.add('visible');
+            setTimeout(() => modelBounds.classList.remove('visible'), 1000);
+            
+            // Calculate optimal camera position
+            const sphereRadius = boundingSphere.radius;
+            const center = boundingSphere.center;
+            
+            // Set controls target to model center
+            controls.target.copy(center);
+            
+            // Calculate camera distance to fit model
+            const fov = camera.fov * (Math.PI / 180);
+            const distance = sphereRadius / Math.sin(fov / 2);
+            
+            // Position camera
+            camera.position.set(
+                center.x,
+                center.y + sphereRadius * 0.5, // Slightly above
+                center.z + distance * 1.2
+            );
+            
+            // Update controls
+            controls.update();
+            
+            // Smooth transition
+            animateCameraToPosition(camera.position, controls.target, 1000);
+        }
+        
+        // ====================
+        // SMOOTH CAMERA ANIMATION
+        // ====================
+        function animateCameraToPosition(targetPosition, targetLookAt, duration = 1000) {
+            const startPosition = camera.position.clone();
+            const startTarget = controls.target.clone();
+            const startTime = Date.now();
+            
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing function
+                const easeProgress = easeOutCubic(progress);
+                
+                // Interpolate position
+                camera.position.lerpVectors(startPosition, targetPosition, easeProgress);
+                
+                // Interpolate target
+                controls.target.lerpVectors(startTarget, targetLookAt, easeProgress);
+                
+                controls.update();
+                
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                }
+            }
+            
+            animate();
+        }
+        
+        function easeOutCubic(t) {
+            return 1 - Math.pow(1 - t, 3);
+        }
+        
+        // ====================
+        // ZOOM FUNCTIONS
+        // ====================
+        function zoomIn() {
+            if (!camera) return;
+            
+            const zoomFactor = 1 / CONFIG.zoomSpeed;
+            camera.zoom = Math.max(CONFIG.minZoom, camera.zoom * zoomFactor);
+            camera.updateProjectionMatrix();
+            
+            // Keep model centered while zooming
+            if (model) {
+                controls.target.copy(boundingSphere.center);
+                controls.update();
+            }
+        }
+        
+        function zoomOut() {
+            if (!camera) return;
+            
+            const zoomFactor = CONFIG.zoomSpeed;
+            camera.zoom = Math.min(CONFIG.maxZoom, camera.zoom * zoomFactor);
+            camera.updateProjectionMatrix();
+            
+            // Keep model centered while zooming
+            if (model) {
+                controls.target.copy(boundingSphere.center);
+                controls.update();
+            }
+        }
+        
+        function resetZoom() {
+            if (!camera) return;
+            
+            camera.zoom = 1;
+            camera.updateProjectionMatrix();
+            centerModel();
+        }
+        
+        // ====================
+        // FIXED ZOOM HANDLING
+        // ====================
+        function setupFixedZoom() {
+            // Override OrbitControls zoom to keep model centered
+            if (controls) {
+                const originalZoom = controls.zoomSpeed;
+                
+                controls.addEventListener('change', function() {
+                    // Keep target centered on model bounds
+                    if (model && boundingSphere.radius > 0) {
+                        const distance = camera.position.distanceTo(controls.target);
+                        const direction = new THREE.Vector3()
+                            .subVectors(camera.position, controls.target)
+                            .normalize();
+                        
+                        // Adjust target slightly toward model center
+                        const modelCenter = boundingSphere.center;
+                        const targetToCenter = new THREE.Vector3()
+                            .subVectors(modelCenter, controls.target);
+                        
+                        // Blend toward center (25% per frame)
+                        controls.target.add(targetToCenter.multiplyScalar(0.25));
+                    }
+                });
             }
         }
         
@@ -417,9 +359,10 @@
             scene = new THREE.Scene();
             scene.background = new THREE.Color(CONFIG.backgroundColor);
             
-            // 2. Create camera
+            // 2. Create camera with better zoom settings
             const aspect = viewer.clientWidth / viewer.clientHeight;
-            camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(50, aspect, 0.1, 1000); // Wider FOV
+            camera.zoom = 1;
             camera.position.set(5, 3, 8);
             
             updateStatus('🚀 Creating renderer...', 30);
@@ -433,10 +376,21 @@
             renderer.shadowMap.enabled = true;
             viewer.appendChild(renderer.domElement);
             
-            // 4. Add controls
+            // 4. Add improved OrbitControls
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
+            controls.dampingFactor = 0.1; // Smoother damping
+            controls.screenSpacePanning = false; // Better for 3D objects
+            controls.maxPolarAngle = Math.PI; // Allow full rotation
+            controls.minDistance = 0.5; // Min zoom distance
+            controls.maxDistance = 50; // Max zoom distance
+            
+            // Enable smooth transitions
+            controls.enablePan = true;
+            controls.panSpeed = 0.5;
+            
+            // Setup fixed zoom handling
+            setupFixedZoom();
             
             updateStatus('💡 Adding lighting...', 50);
             
@@ -448,9 +402,14 @@
             directionalLight.position.set(10, 20, 5);
             scene.add(directionalLight);
             
+            // 6. Add subtle rim light for better visibility
+            const rimLight = new THREE.DirectionalLight(0x4488ff, 0.3);
+            rimLight.position.set(-10, 10, -10);
+            scene.add(rimLight);
+            
             updateStatus('📦 Loading 3D model...', 70);
             
-            // 6. Load the model
+            // 7. Load the model
             const loader = new THREE.GLTFLoader();
             
             loader.load(
@@ -467,32 +426,28 @@
                         if (child.isMesh) {
                             child.castShadow = true;
                             child.receiveShadow = true;
+                            
+                            // Add subtle emissive for better visibility
+                            if (child.material) {
+                                child.material.emissive = new THREE.Color(0x111111);
+                            }
                         }
                     });
                     
                     scene.add(model);
                     
-                    // Center model
-                    const box = new THREE.Box3().setFromObject(model);
-                    const center = box.getCenter(new THREE.Vector3());
-                    const size = box.getSize(new THREE.Vector3());
+                    // Calculate and set initial position
+                    calculateModelBounds();
                     
-                    // Position model
-                    model.position.x = -center.x;
-                    model.position.y = -box.min.y;
-                    model.position.z = -center.z;
-                    
-                    // Scale if needed
-                    const maxSize = Math.max(size.x, size.y, size.z);
-                    if (maxSize > 10) {
-                        const scale = 5 / maxSize;
-                        model.scale.multiplyScalar(scale);
-                    }
+                    // Center model initially
+                    setTimeout(() => {
+                        centerModel();
+                    }, 500);
                     
                     updateStatus('✅ Model loaded successfully!', 100);
                     isLoading = false;
                     
-                    // Start animation
+                    // Start animation loop
                     animate();
                 },
                 
@@ -509,6 +464,28 @@
                     statusText.style.color = '#ff5555';
                 }
             );
+            
+            // Add event listeners for custom controls
+            centerBtn.addEventListener('click', centerModel);
+            zoomInBtn.addEventListener('click', zoomIn);
+            zoomOutBtn.addEventListener('click', zoomOut);
+            resetZoomBtn.addEventListener('click', resetZoom);
+            
+            // Double-click to center
+            renderer.domElement.addEventListener('dblclick', function(event) {
+                centerModel();
+            });
+            
+            // Mouse wheel zoom with centering
+            renderer.domElement.addEventListener('wheel', function(event) {
+                // Let OrbitControls handle zoom, but then recenter
+                setTimeout(() => {
+                    if (model) {
+                        controls.target.lerp(boundingSphere.center, 0.3);
+                        controls.update();
+                    }
+                }, 50);
+            });
             
             // Handle window resize
             window.addEventListener('resize', onWindowResize);
@@ -532,7 +509,7 @@
             requestAnimationFrame(animate);
             
             if (model && CONFIG.autoRotate && !isLoading) {
-                model.rotation.y += 0.005;
+                model.rotation.y += 0.003; // Slower auto-rotation
             }
             
             if (controls) {
@@ -550,7 +527,33 @@
         window.addEventListener('DOMContentLoaded', function() {
             // Start initialization
             setTimeout(init, 500);
+            
+            // Add keyboard shortcuts
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'c' || event.key === 'C') {
+                    centerModel();
+                }
+                if (event.key === '+' || event.key === '=') {
+                    zoomIn();
+                }
+                if (event.key === '-' || event.key === '_') {
+                    zoomOut();
+                }
+                if (event.key === '0') {
+                    resetZoom();
+                }
+            });
         });
+        
+        // Help text for Colab users
+        console.log('🎮 3D Viewer Controls:');
+        console.log('• Drag = Rotate');
+        console.log('• Scroll = Zoom (model stays centered)');
+        console.log('• Right-click drag = Pan');
+        console.log('• Double-click = Center model');
+        console.log('• C key = Center model');
+        console.log('• +/- keys = Zoom in/out');
+        console.log('• 0 key = Reset zoom');
     </script>
 </body>
 </html>
