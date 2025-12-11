@@ -1,73 +1,365 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>3D Model Viewer</title>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <title>3D Model - Kara Montoure</title>
+    <meta charset="utf-8">
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            font-family: Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        #container {
+            width: 100%;
+            max-width: 1000px;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            margin-bottom: 10px;
+            color: #00ffcc;
+        }
+        
+        .subtitle {
+            margin-bottom: 30px;
+            color: #aaa;
+        }
+        
+        #viewer {
+            width: 800px;
+            height: 600px;
+            border: 3px solid #00ffcc;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: #0d1525;
+            margin: 0 auto 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+        
+        #status {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 1px solid #444;
+            max-width: 800px;
+            width: 100%;
+        }
+        
+        .controls {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 14px;
+            color: #00ffcc;
+        }
+        
+        .error {
+            color: #ff5555;
+            background: rgba(255, 0, 0, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ff5555;
+            margin: 20px;
+        }
+        
+        #fallbackImage {
+            display: none;
+            max-width: 100%;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body>
-    <div id="status" style="position:absolute; top:10px; left:10px; background:black; color:white; padding:10px;">
-        Loading...
+    <div id="container">
+        <h1>🎬 3D Model Presentation</h1>
+        <div class="subtitle">Computer Graphics Assignment | Kara Montoure</div>
+        
+        <!-- The 3D viewer container -->
+        <div id="viewer">
+            <!-- Canvas will be inserted here by Three.js -->
+        </div>
+        
+        <!-- Fallback image if 3D fails -->
+        <img id="fallbackImage" src="" alt="3D Model Screenshot">
+        
+        <div class="controls">
+            🖱️ <strong>Controls:</strong> Drag = Rotate | Scroll = Zoom | Right-click = Pan
+        </div>
+        
+        <div id="status">
+            <div id="statusText">🔄 Initializing 3D viewer...</div>
+            <div id="progressBar" style="width:100%; height:4px; background:#333; margin-top:10px; border-radius:2px;">
+                <div id="progressFill" style="width:0%; height:100%; background:#00ffcc; border-radius:2px; transition:width 0.3s;"></div>
+            </div>
+        </div>
     </div>
+
+    <!-- Load Three.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.min.js"></script>
+
     <script>
-        // 1. Setup
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({antialias: true});
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        // ====================
+        // CONFIGURATION
+        // ====================
+        const CONFIG = {
+            modelUrl: 'model.glb',  // Your model file
+            backgroundColor: 0x0d1525,
+            cameraDistance: 5,
+            autoRotate: true,
+            showGrid: true
+        };
         
-        // 2. Lights
-        const light = new THREE.DirectionalLight(0xffffff, 1);
-        light.position.set(5, 5, 5);
-        scene.add(light);
-        scene.add(new THREE.AmbientLight(0x404040));
+        // ====================
+        // STATE
+        // ====================
+        let scene, camera, renderer, controls, model;
+        let isLoading = true;
         
-        // 3. Controls
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        // ====================
+        // DOM ELEMENTS
+        // ====================
+        const statusText = document.getElementById('statusText');
+        const progressFill = document.getElementById('progressFill');
+        const fallbackImage = document.getElementById('fallbackImage');
+        const viewer = document.getElementById('viewer');
         
-        // 4. Load YOUR MODEL
-        const loader = new THREE.GLTFLoader();
-        loader.load(
-            'model.glb', // ⬅️ FILE NAME MUST MATCH
-            function(gltf) {
-                scene.add(gltf.scene);
-                document.getElementById('status').innerHTML = '✅ Model Loaded!<br>Drag to rotate | Scroll to zoom';
-                console.log('Model loaded successfully');
-            },
-            function(xhr) {
-                const percent = (xhr.loaded / xhr.total * 100).toFixed(1);
-                document.getElementById('status').innerHTML = `Loading: ${percent}%`;
-            },
-            function(error) {
-                document.getElementById('status').innerHTML = '❌ Error loading model';
-                console.error('Error:', error);
+        // ====================
+        // UPDATE STATUS
+        // ====================
+        function updateStatus(message, progress = null) {
+            statusText.innerHTML = message;
+            if (progress !== null) {
+                progressFill.style.width = progress + '%';
             }
-        );
+            console.log('Status:', message);
+        }
         
-        // 5. Camera position
-        camera.position.z = 5;
-        controls.update();
+        // ====================
+        // SHOW ERROR
+        // ====================
+        function showError(message) {
+            updateStatus('❌ ' + message);
+            statusText.style.color = '#ff5555';
+            
+            // Show fallback option
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.innerHTML = `
+                <h3>3D Viewer Failed to Load</h3>
+                <p>${message}</p>
+                <p><strong>Alternative:</strong> You can <a href="${CONFIG.modelUrl}" style="color:#00ffcc;">download the 3D model file</a> to view in Blender.</p>
+            `;
+            document.getElementById('status').appendChild(errorDiv);
+            
+            // Hide viewer, show fallback
+            viewer.style.display = 'none';
+            fallbackImage.style.display = 'block';
+        }
         
-        // 6. Animation loop
+        // ====================
+        // CHECK WEBGL SUPPORT
+        // ====================
+        function checkWebGL() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                return gl && gl instanceof WebGLRenderingContext;
+            } catch (e) {
+                return false;
+            }
+        }
+        
+        // ====================
+        // INITIALIZE 3D SCENE
+        // ====================
+        function init() {
+            updateStatus('🔍 Checking WebGL support...');
+            
+            // Check if WebGL is available
+            if (!checkWebGL()) {
+                showError('Your browser/device does not support WebGL. Try Chrome/Firefox on a different device.');
+                return;
+            }
+            
+            updateStatus('🚀 Creating 3D scene...');
+            
+            // 1. Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.backgroundColor);
+            
+            // 2. Create camera
+            const aspect = viewer.clientWidth / viewer.clientHeight;
+            camera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+            camera.position.set(0, 2, CONFIG.cameraDistance);
+            
+            // 3. Create renderer
+            renderer = new THREE.WebGLRenderer({ 
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance"
+            });
+            renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            viewer.appendChild(renderer.domElement);
+            
+            // 4. Add controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.screenSpacePanning = false;
+            controls.minDistance = 1;
+            controls.maxDistance = 50;
+            
+            // 5. Add lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(10, 20, 5);
+            directionalLight.castShadow = true;
+            scene.add(directionalLight);
+            
+            // 6. Add grid helper
+            if (CONFIG.showGrid) {
+                const gridHelper = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+                scene.add(gridHelper);
+            }
+            
+            updateStatus('📦 Loading 3D model...', 30);
+            
+            // 7. Load the model
+            const loader = new THREE.GLTFLoader();
+            
+            loader.load(
+                CONFIG.modelUrl,
+                
+                // Success callback
+                function(gltf) {
+                    updateStatus('🎨 Processing model...', 70);
+                    
+                    model = gltf.scene;
+                    
+                    // Enable shadows
+                    model.traverse(function(child) {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                        }
+                    });
+                    
+                    scene.add(model);
+                    
+                    // Center and scale model
+                    const box = new THREE.Box3().setFromObject(model);
+                    const center = box.getCenter(new THREE.Vector3());
+                    const size = box.getSize(new THREE.Vector3());
+                    
+                    // Center model
+                    model.position.x = -center.x;
+                    model.position.y = -box.min.y;
+                    model.position.z = -center.z;
+                    
+                    updateStatus('✅ Model loaded successfully!', 100);
+                    isLoading = false;
+                    
+                    // Update controls target
+                    controls.target.set(0, size.y / 2, 0);
+                    controls.update();
+                    
+                    // Start animation
+                    animate();
+                },
+                
+                // Progress callback
+                function(xhr) {
+                    const percent = (xhr.loaded / xhr.total * 100).toFixed(1);
+                    updateStatus(`📥 Downloading: ${percent}%`, percent);
+                },
+                
+                // Error callback
+                function(error) {
+                    console.error('GLTF Loader Error:', error);
+                    showError('Failed to load 3D model. Check if "model.glb" exists in the repository.');
+                }
+            );
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+        }
+        
+        // ====================
+        // WINDOW RESIZE
+        // ====================
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            
+            camera.aspect = viewer.clientWidth / viewer.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(viewer.clientWidth, viewer.clientHeight);
+        }
+        
+        // ====================
+        // ANIMATION LOOP
+        // ====================
         function animate() {
             requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
+            
+            if (model && CONFIG.autoRotate && !isLoading) {
+                model.rotation.y += 0.005;
+            }
+            
+            if (controls) {
+                controls.update();
+            }
+            
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
         }
-        animate();
         
-        // 7. Resize
-        window.addEventListener('resize', function() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
+        // ====================
+        // START EVERYTHING
+        // ====================
+        updateStatus('⚡ Starting 3D viewer...');
+        
+        // Wait for page to load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure DOM is ready
+            setTimeout(init, 100);
         });
+        
+        // Fallback timeout
+        setTimeout(function() {
+            if (isLoading) {
+                showError('Loading timeout. The model might be too large or there are network issues.');
+            }
+        }, 30000); // 30 second timeout
     </script>
 </body>
 </html>
