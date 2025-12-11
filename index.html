@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>3D Model Viewer</title>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <div id="status" style="position:absolute; top:10px; left:10px; background:black; color:white; padding:10px;">
+        Loading...
+    </div>
+    <script>
+        // 1. Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        
+        // 2. Lights
+        const light = new THREE.DirectionalLight(0xffffff, 1);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+        
+        // 3. Controls
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        
+        // 4. Load YOUR MODEL
+        const loader = new THREE.GLTFLoader();
+        loader.load(
+            'model.glb', // ⬅️ FILE NAME MUST MATCH
+            function(gltf) {
+                scene.add(gltf.scene);
+                document.getElementById('status').innerHTML = '✅ Model Loaded!<br>Drag to rotate | Scroll to zoom';
+                console.log('Model loaded successfully');
+            },
+            function(xhr) {
+                const percent = (xhr.loaded / xhr.total * 100).toFixed(1);
+                document.getElementById('status').innerHTML = `Loading: ${percent}%`;
+            },
+            function(error) {
+                document.getElementById('status').innerHTML = '❌ Error loading model';
+                console.error('Error:', error);
+            }
+        );
+        
+        // 5. Camera position
+        camera.position.z = 5;
+        controls.update();
+        
+        // 6. Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+        
+        // 7. Resize
+        window.addEventListener('resize', function() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
